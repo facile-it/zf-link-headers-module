@@ -179,9 +179,10 @@ class FunctionalTest extends AbstractHttpControllerTestCase
         $headers = $response->getHeaders();
 
         $headerMatched = false;
+        $currentHeader = null;
 
         foreach ($headers as $currentHeader) {
-            if ($match == $currentHeader->getFieldValue()) {
+            if ($match === $currentHeader->getFieldValue()) {
                 $headerMatched = true;
                 break;
             }
@@ -195,7 +196,7 @@ class FunctionalTest extends AbstractHttpControllerTestCase
             )));
         }
 
-        $this->assertEquals($match, $currentHeader->getFieldValue());
+        $this->assertEquals($match, $currentHeader ? $currentHeader->getFieldValue() : null);
     }
 
     /**
@@ -218,8 +219,10 @@ class FunctionalTest extends AbstractHttpControllerTestCase
         /** @var Headers|HeaderInterface[] $headers */
         $headers = $response->getHeaders();
 
+        $currentHeader = null;
+
         foreach ($headers as $currentHeader) {
-            if ($match == $currentHeader->getFieldValue()) {
+            if ($match === $currentHeader->getFieldValue()) {
                 throw new ExpectationFailedException($this->createFailureMessage(sprintf(
                     'Failed asserting response header "%s" DOES NOT CONTAIN "%s"',
                     $header,
@@ -228,6 +231,6 @@ class FunctionalTest extends AbstractHttpControllerTestCase
             }
         }
 
-        $this->assertNotEquals($match, $currentHeader->getFieldValue());
+        $this->assertNotEquals($match, $currentHeader ? $currentHeader->getFieldValue() : null);
     }
 }
