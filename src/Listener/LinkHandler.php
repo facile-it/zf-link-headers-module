@@ -58,7 +58,7 @@ final class LinkHandler extends AbstractLinkHandler
         }
 
         foreach ($this->headLink->getContainer() as $item) {
-            $attributes = $array = \get_object_vars($item);
+            $attributes = \get_object_vars($item);
 
             if (! $this->canInjectLink($attributes)) {
                 continue;
