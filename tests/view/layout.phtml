@@ -10,8 +10,8 @@
     ?>
     <?=
     $this->headScript()
-        ->prependFile('/script/foo.js')
-        ->prependFile('/script/bar.js', 'text/text')
+        ->appendFile('/script/foo.js')
+        ->appendFile('/script/bar.js', 'text/text')
     ?>
 </head>
 <body>

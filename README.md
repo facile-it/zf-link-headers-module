@@ -94,13 +94,13 @@ In your template:
 
 ### Response headers
 
-The module will automatically add headers to the response with these links (or similar):
+The module will automatically add a Link header to the response:
 
 ```
-Link: </assets/images/logo.png>; rel="preload"; as="image"; media="image/png"
-Link: </assets/vendor.css>; rel="preload"; as="style"
-Link: </assets/vendor.js>; rel="preload"; as="script"
-Link: </assets/next.css>; rel="prefetch"; as="style"
+Link: </assets/images/logo.png>; rel="preload"; as="image"; media="image/png",
+  </assets/vendor.css>; rel="preload"; as="style",
+  </assets/vendor.js>; rel="preload"; as="script",
+  </assets/next.css>; rel="prefetch"; as="style"
 ```
 
 You should notice that resource `/script/foo.js` is not in headers, because it wasn't
@@ -148,7 +148,7 @@ In your template:
 
 ### Response headers
 
-The module will automatically add headers to the response with these links:
+The module will automatically add a Link header to the response:
 
 ```
 Link: </assets/vendor.css>; rel="preload"; as="style"; type="text/css"; media="screen"
@@ -198,11 +198,11 @@ In your template:
 
 ### Response headers
 
-The module will automatically add headers to the response with these links:
+The module will automatically add a Link header to the response:
 
 ```
-Link: </script/foo.js>; rel="preload"; as="script"; type="text/javascript"
-Link: </script/bar.js>; rel="preload"; as="script"; type="text/foo"
+Link: </script/foo.js>; rel="preload"; as="script"; type="text/javascript",
+  </script/bar.js>; rel="preload"; as="script"; type="text/foo"
 ```
 
 

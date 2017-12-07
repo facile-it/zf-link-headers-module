@@ -54,6 +54,8 @@ final class StylesheetHandler extends AbstractLinkHandler
             return;
         }
 
+        $values = [];
+
         foreach ($this->headLink->getContainer() as $item) {
             $attributes = \get_object_vars($item);
 
@@ -78,8 +80,10 @@ final class StylesheetHandler extends AbstractLinkHandler
                 $attributes['nopush'] = null;
             }
 
-            $response->getHeaders()->addHeader($this->createLinkHeader($attributes));
+            $values[] = $this->createLinkHeaderValue($attributes);
         }
+
+        $this->addLinkHeader($response, $values);
     }
 
     /**

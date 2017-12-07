@@ -53,6 +53,8 @@ final class ScriptHandler extends AbstractLinkHandler
             return;
         }
 
+        $values = [];
+
         foreach ($this->headScript->getContainer() as $item) {
             $properties = \get_object_vars($item);
             $attributes = $properties['attributes'] ?? [];
@@ -74,8 +76,10 @@ final class ScriptHandler extends AbstractLinkHandler
                 $attributes['nopush'] = null;
             }
 
-            $response->getHeaders()->addHeader($this->createLinkHeader($attributes));
+            $values[] = $this->createLinkHeaderValue($attributes);
         }
+
+        $this->addLinkHeader($response, $values);
     }
 
     /**
