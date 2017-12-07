@@ -1,5 +1,11 @@
 # ZFLinkHeadersModule
 
+[![Travis](https://img.shields.io/travis/facile-it/zf-link-headers-module.svg)](https://travis-ci.org/facile-it/zf-link-headers-module)
+[![Scrutinizer Coverage](https://img.shields.io/scrutinizer/coverage/g/facile-it/zf-link-headers-module.svg)](https://scrutinizer-ci.com/g/facile-it/zf-link-headers-module/)
+[![Scrutinizer](https://img.shields.io/scrutinizer/g/facile-it/zf-link-headers-module.svg)](https://scrutinizer-ci.com/g/facile-it/zf-link-headers-module/)
+[![GitHub release](https://img.shields.io/github/release/facile-it/zf-link-headers-module.svg)](https://github.com/facile-it/zf-link-headers-module)
+
+
 This module will automatically sends `Link` HTTP headers supporting 
 [resource hints](https://www.w3.org/TR/resource-hints/)
 and [preload](https://www.w3.org/TR/preload/), via HTTP headers.
