@@ -7,6 +7,7 @@ namespace Facile\ZFLinkHeadersModule\Listener;
 use Zend\Http\Header\GenericMultiHeader;
 use Zend\Http\Header\HeaderInterface;
 use Zend\Http\Header\HeaderValue;
+use Zend\Http\PhpEnvironment\Response;
 
 abstract class AbstractLinkHandler implements LinkHandlerInterface
 {
@@ -42,9 +43,9 @@ abstract class AbstractLinkHandler implements LinkHandlerInterface
      * Returns the link header
      *
      * @param array $attributes
-     * @return HeaderInterface
+     * @return string
      */
-    protected function createLinkHeader(array $attributes): HeaderInterface
+    protected function createLinkHeaderValue(array $attributes): string
     {
         $href = $attributes['href'];
         unset($attributes['href']);
@@ -54,8 +55,43 @@ abstract class AbstractLinkHandler implements LinkHandlerInterface
             $attributeLines[] = $this->getAttributeForHeader($name, $value);
         }
 
-        $value = \sprintf('<%s>; %s', $href, \implode('; ', $attributeLines));
+        return \sprintf('<%s>; %s', $href, \implode('; ', $attributeLines));
+    }
 
-        return new GenericMultiHeader('Link', $value);
+    /**
+     * @param Response $response
+     * @param array $values
+     */
+    protected function addLinkHeader(Response $response, array $values)
+    {
+        if (! \count($values)) {
+            return;
+        }
+
+        $header = new GenericMultiHeader('Link', \implode(', ', $values));
+        $currentHeader = $response->getHeaders()->get($header->getFieldName());
+
+        /** @var HeaderInterface[] $headers */
+        $headers = [];
+        if ($currentHeader instanceof \ArrayIterator) {
+            $headers = \iterator_to_array($currentHeader);
+        } elseif (false !== $currentHeader) {
+            $headers[] = $currentHeader;
+        }
+
+        foreach ($headers as $headerItem) {
+            $response->getHeaders()->removeHeader($headerItem);
+        }
+
+        $headers[] = $header;
+
+        $headerValues = \array_map(
+            function (HeaderInterface $header) {
+                return $header->getFieldValue();
+            },
+            $headers
+        );
+
+        $response->getHeaders()->addHeader(new GenericMultiHeader($header->getFieldName(), \implode(', ', $headerValues)));
     }
 }

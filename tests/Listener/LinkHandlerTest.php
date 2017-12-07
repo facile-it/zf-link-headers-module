@@ -6,6 +6,7 @@ use Facile\ZFLinkHeadersModule\OptionsInterface;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Zend\Http\Header\GenericMultiHeader;
+use Zend\Http\Header\HeaderInterface;
 use Zend\Http\Headers;
 use Zend\Http\PhpEnvironment;
 use Zend\Http\Response;
@@ -25,6 +26,175 @@ class LinkHandlerTest extends TestCase
         $headLink->getContainer()->shouldNotBeCalled();
         $response->getHeaders()->shouldNotBeCalled();
         $event->getResponse()->willReturn($response->reveal());
+
+        $injector = new LinkHandler($headLink->reveal(), $options->reveal());
+
+        $injector($event->reveal());
+    }
+
+    public function testInvokeWithNoItems()
+    {
+        $links = [];
+
+        $headLink = $this->prophesize(HeadLink::class);
+        $options = $this->prophesize(OptionsInterface::class);
+        $event = $this->prophesize(MvcEvent::class);
+        $responseHeaders = $this->prophesize(Headers::class);
+        $headContainer = $this->prophesize(AbstractContainer::class);
+        $response = $this->prophesize(PhpEnvironment\Response::class);
+
+        $options->isHttp2PushEnabled()->willReturn(false);
+
+        $headContainer->getIterator()->willReturn(new \ArrayIterator($links));
+
+        $headLink->getContainer()->willReturn($headContainer->reveal());
+        $response->getHeaders()->willReturn($responseHeaders->reveal());
+        $event->getResponse()->willReturn($response->reveal());
+
+        $responseHeaders->addHeader(Argument::any())
+            ->shouldNotBeCalled();
+
+        $injector = new LinkHandler($headLink->reveal(), $options->reveal());
+
+        $injector($event->reveal());
+    }
+
+    public function testInvokeWithAnotherExistingHeader()
+    {
+        $links = [
+            $this->createStdClass([
+                'rel' => OptionsInterface::MODE_PRELOAD,
+                'href' => '/foo.css',
+            ]),
+            $this->createStdClass([
+                'rel' => OptionsInterface::MODE_PREFETCH,
+                'href' => '/bar.css',
+                'as' => 'style',
+                'crossorigin' => 'same-origin',
+                'type' => 'text/style',
+                'media' => '(min-width: 100px)',
+                'nopush' => 'nopush',
+            ]),
+            $this->createStdClass([
+                'rel' => OptionsInterface::MODE_DNS_PREFETCH,
+                'href' => '/foo-dns-prefetch.css',
+            ]),
+            $this->createStdClass([
+                'rel' => OptionsInterface::MODE_PRECONNECT,
+                'href' => '/foo-preconnect.css',
+            ]),
+            $this->createStdClass([
+                'rel' => OptionsInterface::MODE_PRERENDER,
+                'href' => '/foo-prerender.css',
+            ]),
+        ];
+
+        $expected = [
+            '</existing-link>; as="style"',
+            '</foo.css>; rel="preload"; nopush',
+            '</bar.css>; rel="prefetch"; as="style"; crossorigin="same-origin"; type="text/style"; media="(min-width: 100px)"; nopush',
+            '</foo-dns-prefetch.css>; rel="dns-prefetch"; nopush',
+            '</foo-preconnect.css>; rel="preconnect"; nopush',
+            '</foo-prerender.css>; rel="prerender"; nopush',
+        ];
+
+        $headLink = $this->prophesize(HeadLink::class);
+        $options = $this->prophesize(OptionsInterface::class);
+        $event = $this->prophesize(MvcEvent::class);
+        $responseHeaders = $this->prophesize(Headers::class);
+        $headContainer = $this->prophesize(AbstractContainer::class);
+        $response = $this->prophesize(PhpEnvironment\Response::class);
+        $existingHeader = $this->prophesize(HeaderInterface::class);
+
+        $options->isHttp2PushEnabled()->willReturn(false);
+
+        $headContainer->getIterator()->willReturn(new \ArrayIterator($links));
+
+        $headLink->getContainer()->willReturn($headContainer->reveal());
+        $response->getHeaders()->willReturn($responseHeaders->reveal());
+        $event->getResponse()->willReturn($response->reveal());
+
+        $responseHeaders->get('Link')->willReturn($existingHeader->reveal());
+        $responseHeaders->removeHeader($existingHeader->reveal())->shouldBeCalled();
+        $existingHeader->getFieldValue()->willReturn('</existing-link>; as="style"');
+
+        $responseHeaders->addHeader(Argument::allOf(
+            Argument::type(GenericMultiHeader::class),
+            Argument::which('getFieldName', 'Link'),
+            Argument::which('getFieldValue', \implode(', ', $expected))
+        ))
+            ->shouldBeCalledTimes(1);
+
+        $injector = new LinkHandler($headLink->reveal(), $options->reveal());
+
+        $injector($event->reveal());
+    }
+
+    public function testInvokeWithAnotherExistingMultiHeader()
+    {
+        $links = [
+            $this->createStdClass([
+                'rel' => OptionsInterface::MODE_PRELOAD,
+                'href' => '/foo.css',
+            ]),
+            $this->createStdClass([
+                'rel' => OptionsInterface::MODE_PREFETCH,
+                'href' => '/bar.css',
+                'as' => 'style',
+                'crossorigin' => 'same-origin',
+                'type' => 'text/style',
+                'media' => '(min-width: 100px)',
+                'nopush' => 'nopush',
+            ]),
+            $this->createStdClass([
+                'rel' => OptionsInterface::MODE_DNS_PREFETCH,
+                'href' => '/foo-dns-prefetch.css',
+            ]),
+            $this->createStdClass([
+                'rel' => OptionsInterface::MODE_PRECONNECT,
+                'href' => '/foo-preconnect.css',
+            ]),
+            $this->createStdClass([
+                'rel' => OptionsInterface::MODE_PRERENDER,
+                'href' => '/foo-prerender.css',
+            ]),
+        ];
+
+        $expected = [
+            '</existing-link>; as="style"',
+            '</foo.css>; rel="preload"; nopush',
+            '</bar.css>; rel="prefetch"; as="style"; crossorigin="same-origin"; type="text/style"; media="(min-width: 100px)"; nopush',
+            '</foo-dns-prefetch.css>; rel="dns-prefetch"; nopush',
+            '</foo-preconnect.css>; rel="preconnect"; nopush',
+            '</foo-prerender.css>; rel="prerender"; nopush',
+        ];
+
+        $headLink = $this->prophesize(HeadLink::class);
+        $options = $this->prophesize(OptionsInterface::class);
+        $event = $this->prophesize(MvcEvent::class);
+        $responseHeaders = $this->prophesize(Headers::class);
+        $headContainer = $this->prophesize(AbstractContainer::class);
+        $response = $this->prophesize(PhpEnvironment\Response::class);
+        $existingHeader = $this->prophesize(HeaderInterface::class);
+
+        $options->isHttp2PushEnabled()->willReturn(false);
+
+        $headContainer->getIterator()->willReturn(new \ArrayIterator($links));
+
+        $headLink->getContainer()->willReturn($headContainer->reveal());
+        $response->getHeaders()->willReturn($responseHeaders->reveal());
+        $event->getResponse()->willReturn($response->reveal());
+
+        $responseHeaders->get('Link')->willReturn(new \ArrayIterator([$existingHeader->reveal()]));
+        $responseHeaders->removeHeader($existingHeader->reveal())->shouldBeCalled();
+        $existingHeader->getFieldValue()->willReturn('</existing-link>; as="style"');
+
+        $responseHeaders->addHeader(Argument::allOf(
+            Argument::type(GenericMultiHeader::class),
+            Argument::which('getFieldName', 'Link'),
+            Argument::which('getFieldValue', \implode(', ', $expected))
+        ))
+            ->shouldBeCalledTimes(1);
 
         $injector = new LinkHandler($headLink->reveal(), $options->reveal());
 
@@ -61,6 +231,14 @@ class LinkHandlerTest extends TestCase
             ]),
         ];
 
+        $expected = [
+            '</foo.css>; rel="preload"; nopush',
+            '</bar.css>; rel="prefetch"; as="style"; crossorigin="same-origin"; type="text/style"; media="(min-width: 100px)"; nopush',
+            '</foo-dns-prefetch.css>; rel="dns-prefetch"; nopush',
+            '</foo-preconnect.css>; rel="preconnect"; nopush',
+            '</foo-prerender.css>; rel="prerender"; nopush',
+        ];
+
         $headLink = $this->prophesize(HeadLink::class);
         $options = $this->prophesize(OptionsInterface::class);
         $event = $this->prophesize(MvcEvent::class);
@@ -76,36 +254,15 @@ class LinkHandlerTest extends TestCase
         $response->getHeaders()->willReturn($responseHeaders->reveal());
         $event->getResponse()->willReturn($response->reveal());
 
+        $responseHeaders->get('Link')->willReturn(false);
+        $responseHeaders->removeHeader(Argument::any())->shouldNotBeCalled();
+
         $responseHeaders->addHeader(Argument::allOf(
             Argument::type(GenericMultiHeader::class),
             Argument::which('getFieldName', 'Link'),
-            Argument::which('getFieldValue', '</foo.css>; rel="preload"; nopush')
+            Argument::which('getFieldValue', \implode(', ', $expected))
         ))
-            ->shouldBeCalled();
-        $responseHeaders->addHeader(Argument::allOf(
-            Argument::type(GenericMultiHeader::class),
-            Argument::which('getFieldName', 'Link'),
-            Argument::which('getFieldValue', '</bar.css>; rel="prefetch"; as="style"; crossorigin="same-origin"; type="text/style"; media="(min-width: 100px)"; nopush')
-        ))
-            ->shouldBeCalled();
-        $responseHeaders->addHeader(Argument::allOf(
-            Argument::type(GenericMultiHeader::class),
-            Argument::which('getFieldName', 'Link'),
-            Argument::which('getFieldValue', '</foo-dns-prefetch.css>; rel="dns-prefetch"; nopush')
-        ))
-            ->shouldBeCalled();
-        $responseHeaders->addHeader(Argument::allOf(
-            Argument::type(GenericMultiHeader::class),
-            Argument::which('getFieldName', 'Link'),
-            Argument::which('getFieldValue', '</foo-preconnect.css>; rel="preconnect"; nopush')
-        ))
-            ->shouldBeCalled();
-        $responseHeaders->addHeader(Argument::allOf(
-            Argument::type(GenericMultiHeader::class),
-            Argument::which('getFieldName', 'Link'),
-            Argument::which('getFieldValue', '</foo-prerender.css>; rel="prerender"; nopush')
-        ))
-            ->shouldBeCalled();
+            ->shouldBeCalledTimes(1);
 
         $injector = new LinkHandler($headLink->reveal(), $options->reveal());
 
@@ -119,6 +276,10 @@ class LinkHandlerTest extends TestCase
                 'rel' => OptionsInterface::MODE_PRELOAD,
                 'href' => '/foo.css',
             ]),
+        ];
+
+        $expected = [
+            '</foo.css>; rel="preload"',
         ];
 
         $headLink = $this->prophesize(HeadLink::class);
@@ -136,12 +297,15 @@ class LinkHandlerTest extends TestCase
         $response->getHeaders()->willReturn($responseHeaders->reveal());
         $event->getResponse()->willReturn($response->reveal());
 
+        $responseHeaders->get('Link')->willReturn(false);
+        $responseHeaders->removeHeader(Argument::any())->shouldNotBeCalled();
+
         $responseHeaders->addHeader(Argument::allOf(
             Argument::type(GenericMultiHeader::class),
             Argument::which('getFieldName', 'Link'),
-            Argument::which('getFieldValue', '</foo.css>; rel="preload"')
+            Argument::which('getFieldValue', \implode(', ', $expected))
         ))
-            ->shouldBeCalled();
+            ->shouldBeCalledTimes(1);
 
         $injector = new LinkHandler($headLink->reveal(), $options->reveal());
 
@@ -160,6 +324,10 @@ class LinkHandlerTest extends TestCase
             ]),
         ];
 
+        $expected = [
+            '</foo.css>; rel="preload"',
+        ];
+
         $headLink = $this->prophesize(HeadLink::class);
         $options = $this->prophesize(OptionsInterface::class);
         $event = $this->prophesize(MvcEvent::class);
@@ -175,12 +343,15 @@ class LinkHandlerTest extends TestCase
         $response->getHeaders()->willReturn($responseHeaders->reveal());
         $event->getResponse()->willReturn($response->reveal());
 
+        $responseHeaders->get('Link')->willReturn(false);
+        $responseHeaders->removeHeader(Argument::any())->shouldNotBeCalled();
+
         $responseHeaders->addHeader(Argument::allOf(
             Argument::type(GenericMultiHeader::class),
             Argument::which('getFieldName', 'Link'),
-            Argument::which('getFieldValue', '</foo.css>; rel="preload"')
+            Argument::which('getFieldValue', \implode(', ', $expected))
         ))
-            ->shouldBeCalled();
+            ->shouldBeCalledTimes(1);
 
         $injector = new LinkHandler($headLink->reveal(), $options->reveal());
 
@@ -202,6 +373,10 @@ class LinkHandlerTest extends TestCase
             ]),
         ];
 
+        $expected = [
+            '</foo.css>; rel="preload"',
+        ];
+
         $headLink = $this->prophesize(HeadLink::class);
         $options = $this->prophesize(OptionsInterface::class);
         $event = $this->prophesize(MvcEvent::class);
@@ -217,12 +392,15 @@ class LinkHandlerTest extends TestCase
         $response->getHeaders()->willReturn($responseHeaders->reveal());
         $event->getResponse()->willReturn($response->reveal());
 
+        $responseHeaders->get('Link')->willReturn(false);
+        $responseHeaders->removeHeader(Argument::any())->shouldNotBeCalled();
+
         $responseHeaders->addHeader(Argument::allOf(
             Argument::type(GenericMultiHeader::class),
             Argument::which('getFieldName', 'Link'),
-            Argument::which('getFieldValue', '</foo.css>; rel="preload"')
+            Argument::which('getFieldValue', \implode(', ', $expected))
         ))
-            ->shouldBeCalled();
+            ->shouldBeCalledTimes(1);
 
         $injector = new LinkHandler($headLink->reveal(), $options->reveal());
 
