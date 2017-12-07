@@ -24,6 +24,11 @@
     "config": {
         "sort-packages": true
     },
+    "extra": {
+        "zf": {
+            "component": "Facile\\ZFLinkHeadersModule"
+        }
+    },
     "require": {
         "php": "^7.0",
         "psr/container": "^1.0",
