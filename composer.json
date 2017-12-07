@@ -1,0 +1,55 @@
+{
+    "name": "facile-it/zf-link-headers-module",
+    "type": "library",
+    "description": "Zend Framework module to push Link headers for resourcers added with HeadLink view helper",
+    "homepage": "https://github.com/facile-it/zf-link-headers-module",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Thomas Vargiu",
+            "email": "thomas.vargiu@facile.it"
+        }
+    ],
+    "keywords": [
+        "zend",
+        "zend framework",
+        "http2",
+        "link",
+        "header",
+        "performance",
+        "assets",
+        "preload",
+        "prefetch"
+    ],
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": "^7.0",
+        "psr/container": "^1.0",
+        "zendframework/zend-eventmanager": "^3.0",
+        "zendframework/zend-http": "^2.5.4",
+        "zendframework/zend-modulemanager": "^2.7.1",
+        "zendframework/zend-mvc": "^3.0",
+        "zendframework/zend-stdlib": "^3.1",
+        "zendframework/zend-view": "^2.6.7",
+        "zendframework/zend-servicemanager": "^3.0.3",
+        "container-interop/container-interop": "^1.2"
+    },
+    "require-dev": {
+        "zendframework/zend-config": "^2.6.0 || ^3.0",
+        "zendframework/zend-test": "^3.1",
+        "facile-it/facile-coding-standard": "^0.1.0",
+        "phpunit/phpunit": "^6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Facile\\ZFLinkHeadersModule\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Facile\\ZFLinkHeadersModule\\": "tests/"
+        }
+    }
+}
