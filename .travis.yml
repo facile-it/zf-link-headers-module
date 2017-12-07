@@ -20,9 +20,6 @@ matrix:
         - DEPS=lowest
     - php: 7.0
       env:
-        - DEPS=locked
-    - php: 7.0
-      env:
         - DEPS=latest
     - php: 7.1
       env:
@@ -31,9 +28,6 @@ matrix:
       env:
         - EXECUTE_CS_CHECK=true
         - EXECUTE_TEST_SCRUTINIZER=true
-        - DEPS=locked
-    - php: 7.1
-      env:
         - DEPS=latest
     - php: 7.2
       env:
