@@ -33,7 +33,7 @@ return [
             'stylesheet_enabled' => false, // send link headers for stylesheet links
             'stylesheet_mode' => 'preload', // resource hint for stylesheet links
             'script_enabled' => false, // send link headers for scripts
-            'script_mode' => 'preload', // send link headers for scripts
+            'script_mode' => 'preload', // resource hint for script links
             'http2_push_enabled' => true, // if disabled, a "nopush" attributed will be added to disable HTTP/2 push 
         ],
     ],
@@ -54,7 +54,7 @@ return [
             'stylesheet_enabled' => false, // send link headers for stylesheet links
             'stylesheet_mode' => 'preload', // resource hint for stylesheet links
             'script_enabled' => false, // send link headers for scripts
-            'script_mode' => 'preload', // send link headers for scripts
+            'script_mode' => 'preload', // resource hint for script links
             'http2_push_enabled' => true, // if disabled, a "nopush" attributed will be added to disable HTTP/2 push 
         ],
     ],
