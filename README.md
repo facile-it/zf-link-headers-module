@@ -34,6 +34,7 @@ return [
 ];
 ```
 
+
 ## Example
 
 ### Configuration:
@@ -52,6 +53,7 @@ return [
         ],
     ],
 ];
+```
 
 ### Template
 
