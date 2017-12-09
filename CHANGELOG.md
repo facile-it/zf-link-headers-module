@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.2.2 - TBD
+
+### Added
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Removed unused exceptions.
+
+### Fixed
+
+- Nothing
+  
+  
 ## 0.2.1 - 2017-12-07
 
 ### Added

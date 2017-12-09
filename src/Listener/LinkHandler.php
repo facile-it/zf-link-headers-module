@@ -47,8 +47,6 @@ final class LinkHandler extends AbstractLinkHandler
 
     /**
      * @param MvcEvent $event
-     *
-     * @throws Exception\InvalidArgumentException
      */
     public function __invoke(MvcEvent $event)
     {
