@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Facile\ZFLinkHeadersModule\Listener;
 
-use Facile\ZFLinkHeadersModule\Exception;
 use Facile\ZFLinkHeadersModule\OptionsInterface;
 use Zend\Http\PhpEnvironment\Response;
 use Zend\Mvc\MvcEvent;
